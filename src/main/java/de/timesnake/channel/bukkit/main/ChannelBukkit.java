@@ -1,9 +1,10 @@
 package de.timesnake.channel.bukkit.main;
 
-import de.timesnake.channel.api.message.ChannelListenerMessage;
-import de.timesnake.channel.channel.Channel;
-import de.timesnake.channel.channel.SyncRun;
-import de.timesnake.channel.main.NetworkChannel;
+import de.timesnake.channel.core.Channel;
+import de.timesnake.channel.core.NetworkChannel;
+import de.timesnake.channel.core.SyncRun;
+import de.timesnake.channel.util.message.ChannelListenerMessage;
+import de.timesnake.channel.util.message.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,7 +34,7 @@ public class ChannelBukkit extends JavaPlugin {
             }
         });
         //request proxy for server listener
-        NetworkChannel.getChannel().sendMessageToProxy(ChannelListenerMessage.getChannelMessage(NetworkChannel.getChannel().getServerPort()));
+        NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getServerPort(), MessageType.Listener.REGISTER));
     }
 
     public static ChannelBukkit getPlugin() {
