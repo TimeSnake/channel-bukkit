@@ -97,7 +97,7 @@
                             <type>${project.packaging}</type>
                         </artifactItem>
                     </artifactItems>
-                    <outputDirectory>../../plugins</outputDirectory>
+                    <overWriteIfNewer>true</overWriteIfNewer>
                 </configuration>
             </plugin>
         </plugins>
