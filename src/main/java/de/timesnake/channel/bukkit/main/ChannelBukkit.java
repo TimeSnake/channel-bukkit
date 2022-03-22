@@ -34,7 +34,7 @@ public class ChannelBukkit extends JavaPlugin {
             }
         });
         //request proxy for server listener
-        NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getServerPort(), MessageType.Listener.REGISTER));
+        NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getSelf(), MessageType.Listener.REGISTER_SERVER, NetworkChannel.getChannel().getServerPort()));
     }
 
     public static ChannelBukkit getPlugin() {
