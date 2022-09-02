@@ -12,15 +12,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ChannelBukkit extends JavaPlugin {
 
-    private static ChannelBukkit plugin;
-
-    @Override
-    public void onEnable() {
-        plugin = this;
-    }
-
-    public static void start(Integer proxyPort) {
-        NetworkChannel.start(new Channel(Thread.currentThread(), Bukkit.getPort(), proxyPort, new ChannelLogger() {
+    public static void start(String serverName, Integer proxyPort) {
+        NetworkChannel.start(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort, new ChannelLogger() {
             @Override
             public void printInfo(String msg) {
                 Bukkit.getLogger().info("[Channel] " + msg);
@@ -48,10 +41,17 @@ public class ChannelBukkit extends JavaPlugin {
 
         //request proxy for server listener
         NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getSelf(),
-                MessageType.Listener.REGISTER_SERVER, NetworkChannel.getChannel().getServerPort()));
+                MessageType.Listener.REGISTER_SERVER, NetworkChannel.getChannel().getServerName()));
     }
 
     public static ChannelBukkit getPlugin() {
         return plugin;
+    }
+
+    private static ChannelBukkit plugin;
+
+    @Override
+    public void onEnable() {
+        plugin = this;
     }
 }
