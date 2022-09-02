@@ -10,20 +10,21 @@ plugins {
 repositories {
     mavenLocal()
     maven {
-        url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+        url = uri 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
 
     maven {
-        url = uri('https://papermc.io/repo/repository/maven-public/')
+        url = uri 'https://papermc.io/repo/repository/maven-public/'
     }
 
     maven {
-        url = uri('https://repo.maven.apache.org/maven2/')
+        url = uri 'https://repo.maven.apache.org/maven2/'
     }
 }
 
 dependencies {
     implementation 'de.timesnake:channel-api:1.0-SNAPSHOT'
+
     compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
 }
 
