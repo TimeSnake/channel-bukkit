@@ -1,5 +1,5 @@
 /*
- * channel-bukkit.main
+ * workspace.channel-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 package de.timesnake.channel.bukkit.main;
 
 import de.timesnake.channel.core.Channel;
-import de.timesnake.channel.core.ChannelLogger;
 import de.timesnake.channel.core.NetworkChannel;
 import de.timesnake.channel.core.SyncRun;
 import de.timesnake.channel.util.message.ChannelListenerMessage;
@@ -31,17 +30,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ChannelBukkit extends JavaPlugin {
 
     public static void start(String serverName, Integer proxyPort) {
-        NetworkChannel.start(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort, new ChannelLogger() {
-            @Override
-            public void printInfo(String msg) {
-                Bukkit.getLogger().info("[Channel] " + msg);
-            }
-
-            @Override
-            public void printWarning(String msg) {
-                Bukkit.getLogger().warning("[Channel] " + msg);
-            }
-        }) {
+        NetworkChannel.start(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort) {
             @Override
             public void runSync(SyncRun syncRun) {
                 if (getPlugin().isEnabled()) {
@@ -55,7 +44,7 @@ public class ChannelBukkit extends JavaPlugin {
             }
         });
 
-        NetworkChannel.getChannel().logInfo("Loaded network-channel", true);
+        Channel.LOGGER.info("Loaded network-channel");
 
         //request proxy for server listener
         NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getSelf(),
