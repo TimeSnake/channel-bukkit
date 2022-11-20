@@ -19,7 +19,6 @@
 package de.timesnake.channel.bukkit.main;
 
 import de.timesnake.channel.core.Channel;
-import de.timesnake.channel.core.NetworkChannel;
 import de.timesnake.channel.core.SyncRun;
 import de.timesnake.channel.util.message.ChannelListenerMessage;
 import de.timesnake.channel.util.message.MessageType;
@@ -30,7 +29,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ChannelBukkit extends JavaPlugin {
 
     public static void start(String serverName, Integer proxyPort) {
-        NetworkChannel.start(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort) {
+        Channel.setInstance(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort) {
             @Override
             public void runSync(SyncRun syncRun) {
                 if (getPlugin().isEnabled()) {
@@ -44,11 +43,17 @@ public class ChannelBukkit extends JavaPlugin {
             }
         });
 
-        Channel.LOGGER.info("Loaded network-channel");
+        Channel.getInstance().start();
 
         //request proxy for server listener
-        NetworkChannel.getChannel().sendMessageToProxy(new ChannelListenerMessage<>(NetworkChannel.getChannel().getSelf(),
-                MessageType.Listener.REGISTER_SERVER, NetworkChannel.getChannel().getServerName()));
+        Channel.getInstance().sendMessageToProxy(new ChannelListenerMessage<>(Channel.getInstance().getSelf(),
+                MessageType.Listener.REGISTER_SERVER, Channel.getInstance().getServerName()));
+    }
+
+    public static void stop() {
+        if (Channel.getInstance() != null) {
+            Channel.getInstance().stop();
+        }
     }
 
     public static ChannelBukkit getPlugin() {
