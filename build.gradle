@@ -1,5 +1,11 @@
+group = project.group
+version = project(":channel-api").version
+archivesBaseName = 'channel-bukkit'
+var projectId = 42
+
 repositories {
   mavenLocal()
+  mavenCentral()
   maven {
     url = uri 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
   }
@@ -16,10 +22,6 @@ dependencies {
 
   compileOnly project.paper_api
 }
-
-group = project.group
-version = project(":channel-api").version
-archivesBaseName = 'channel-bukkit'
 
 task buildFatJar(type: Jar) {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -44,3 +46,24 @@ jar.finalizedBy(buildFatJar)
 copyJarToPlugins.dependsOn(buildFatJar)
 copyJarToPlugins.dependsOn(deleteOldPluginJar)
 jar.finalizedBy(copyJarToPlugins)
+
+publishing {
+  publications {
+    mavenJavaAll(MavenPublication) {
+      version version + '-all'
+      artifact {
+        file "build/libs/" + archivesBaseName + "-" + version + ".jar"
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      url getDeployUrl(projectId)
+      credentials {
+        username = deploy_token_name
+        password = deploy_token_key
+      }
+    }
+  }
+}
