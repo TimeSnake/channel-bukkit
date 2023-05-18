@@ -8,6 +8,7 @@ import de.timesnake.channel.core.Channel;
 import de.timesnake.channel.core.SyncRun;
 import de.timesnake.channel.util.message.ChannelListenerMessage;
 import de.timesnake.channel.util.message.MessageType;
+import java.time.Duration;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,25 +16,28 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ChannelBukkit extends JavaPlugin {
 
     public static void start(String serverName, Integer proxyPort) {
-        Channel.setInstance(new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort) {
-            @Override
-            public void runSync(SyncRun syncRun) {
-                if (getPlugin().isEnabled()) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            syncRun.run();
+        Channel.setInstance(
+                new Channel(Thread.currentThread(), serverName, Bukkit.getPort(), proxyPort) {
+                    @Override
+                    public void runSync(SyncRun syncRun) {
+                        if (getPlugin().isEnabled()) {
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    syncRun.run();
+                                }
+                            }.runTask(getPlugin());
                         }
-                    }.runTask(getPlugin());
-                }
-            }
-        });
+                    }
+                });
 
         Channel.getInstance().start();
 
         //request proxy for server listener
-        Channel.getInstance().sendMessageToProxy(new ChannelListenerMessage<>(Channel.getInstance().getSelf(),
-                MessageType.Listener.REGISTER_SERVER, Channel.getInstance().getServerName()));
+        Channel.getInstance().connectToProxy(
+                new ChannelListenerMessage<>(Channel.getInstance().getSelf(),
+                        MessageType.Listener.REGISTER_SERVER,
+                        Channel.getInstance().getServerName()), Duration.ofSeconds(10));
     }
 
     public static void stop() {
