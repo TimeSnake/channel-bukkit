@@ -19,6 +19,7 @@ repositories {
 
 dependencies {
   implementation project(':channel-api')
+  compileOnly project(':library-basic')
 
   compileOnly project.paper_api
 }
