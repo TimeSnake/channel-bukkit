@@ -31,6 +31,7 @@ public class ChannelBukkit extends JavaPlugin {
           }
         });
 
+    Channel.getInstance().setTimeOut(Duration.ofSeconds(60));
     Channel.getInstance().start();
 
     //request proxy for server listener
