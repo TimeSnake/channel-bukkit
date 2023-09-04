@@ -5,9 +5,10 @@
 package de.timesnake.channel.bukkit.main;
 
 import com.moandjiezana.toml.Toml;
-import de.timesnake.channel.core.Channel;
+import de.timesnake.channel.core.ServerChannel;
 import de.timesnake.channel.core.SyncRun;
 import de.timesnake.channel.util.ChannelConfig;
+import de.timesnake.channel.util.message.ChannelHeartbeatMessage;
 import de.timesnake.channel.util.message.ChannelListenerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import org.bukkit.Bukkit;
@@ -20,7 +21,7 @@ import java.time.Duration;
 public class ChannelBukkit extends JavaPlugin {
 
   public static void start(String serverName) {
-    Channel.setInstance(new Channel(Thread.currentThread(), config, serverName, Bukkit.getPort()) {
+    ServerChannel.setInstance(new ServerChannel(Thread.currentThread(), config, serverName, Bukkit.getPort()) {
       @Override
       public void runSync(SyncRun syncRun) {
         if (getPlugin().isEnabled()) {
@@ -32,21 +33,26 @@ public class ChannelBukkit extends JavaPlugin {
           }.runTask(getPlugin());
         }
       }
+
+      @Override
+      public void onHeartBeatMessage(ChannelHeartbeatMessage<?> msg) {
+        super.onHeartBeatMessage(msg);
+        if (msg.getMessageType().equals(MessageType.Heartbeat.SERVER_PING)) {
+          this.sendMessageToProxy(new ChannelHeartbeatMessage<>(this.getSelf(), MessageType.Heartbeat.SERVER_PONG, this.getServerName()));
+        }
+      }
     });
 
-    Channel.getInstance().setTimeOut(Duration.ofSeconds(60));
-    Channel.getInstance().start();
+    ServerChannel.getInstance().start();
 
     //request proxy for server listener
-    Channel.getInstance().connectToProxy(
-        new ChannelListenerMessage<>(Channel.getInstance().getSelf(),
-            MessageType.Listener.REGISTER_SERVER,
-            Channel.getInstance().getServerName()), Duration.ofSeconds(10));
+    ServerChannel.getInstance().connectToProxy(new ChannelListenerMessage<>(ServerChannel.getInstance().getSelf(),
+        MessageType.Listener.REGISTER_SERVER, ServerChannel.getInstance().getServerName()), Duration.ofSeconds(3));
   }
 
   public static void stop() {
-    if (Channel.getInstance() != null) {
-      Channel.getInstance().stop();
+    if (ServerChannel.getInstance() != null) {
+      ServerChannel.getInstance().stop();
     }
   }
 
