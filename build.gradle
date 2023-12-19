@@ -6,27 +6,44 @@ plugins {
   id('com.github.johnrengelman.shadow')
 }
 
-group = project.group
-version = project(":channel-api").version
+group = "de.timesnake"
+version = '3.0.5'
 var projectId = 42
 
 repositories {
   mavenLocal()
   mavenCentral()
   maven {
-    url = uri 'https://papermc.io/repo/repository/maven-public/'
+    url 'https://papermc.io/repo/repository/maven-public/'
+  }
+  maven {
+    url "https://git.timesnake.de/api/v4/groups/7/-/packages/maven"
+    name "TimeSnake"
+    credentials {
+      username = timesnakeUser
+      password = timesnakePassword
+    }
   }
 }
 
 dependencies {
-  implementation project(':channel-api')
-  compileOnly project(':library-basic')
+  implementation "de.timesnake:channel-api:3.0.5"
+  compileOnly "de.timesnake:library-basic:1.2.2"
+  compileOnly "de.timesnake:library-chat:1.1"
 
   compileOnly 'org.jetbrains:annotations:23.0.0'
 
-  compileOnly project.toml
+  compileOnly "com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT"
 
-  paperweight.paperDevBundle(project.paperweight_version)
+  paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+}
+
+configurations.configureEach {
+  resolutionStrategy.dependencySubstitution {
+    substitute module("de.timesnake:channel-api") using project(":channel-api")
+    substitute module("de.timesnake:library-basic") using project(":library-basic")
+    substitute module("de.timesnake:library-chat") using project(":library-chat")
+  }
 }
 
 
@@ -65,12 +82,14 @@ tasks {
 publishing {
   repositories {
     maven {
-        url "https://git.timesnake.de/api/v4/projects/" + projectId + "/packages/maven"
-      credentials {
-          username = timesnakeDeployUser
-          password = timesnakeDeployKey
+      url "https://git.timesnake.de/api/v4/projects/" + projectId + "/packages/maven"
+      credentials(HttpHeaderCredentials) {
+        name = "Job-Token"
+        value = System.getenv("CI_JOB_TOKEN")
       }
-
+      authentication {
+        header(HttpHeaderAuthentication)
+      }
     }
   }
 
