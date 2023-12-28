@@ -1,5 +1,5 @@
 main: de.timesnake.channel.bukkit.main.ChannelBukkit
-version: 1.0
+version: 3.0.5
 name: channel-bukkit
 author: Mn
 api-version: 1.13
