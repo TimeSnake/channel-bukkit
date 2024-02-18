@@ -5,12 +5,7 @@
 package de.timesnake.channel.bukkit.main;
 
 import com.moandjiezana.toml.Toml;
-import de.timesnake.channel.core.ServerChannel;
-import de.timesnake.channel.core.SyncRun;
 import de.timesnake.channel.util.ChannelConfig;
-import de.timesnake.channel.util.message.ChannelHeartbeatMessage;
-import de.timesnake.channel.util.message.ChannelListenerMessage;
-import de.timesnake.channel.util.message.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -23,31 +18,20 @@ public class ChannelBukkit extends JavaPlugin {
   public static void start(String serverName) {
     ServerChannel.setInstance(new ServerChannel(Thread.currentThread(), config, serverName, Bukkit.getPort()) {
       @Override
-      public void runSync(SyncRun syncRun) {
+      public void runSync(Runnable runnable) {
         if (getPlugin().isEnabled()) {
           new BukkitRunnable() {
             @Override
             public void run() {
-              syncRun.run();
+              runnable.run();
             }
           }.runTask(getPlugin());
-        }
-      }
-
-      @Override
-      public void onHeartBeatMessage(ChannelHeartbeatMessage<?> msg) {
-        super.onHeartBeatMessage(msg);
-        if (msg.getMessageType().equals(MessageType.Heartbeat.SERVER_PING)) {
-          this.sendMessageToProxy(new ChannelHeartbeatMessage<>(this.getSelf(), MessageType.Heartbeat.SERVER_PONG, this.getServerName()));
         }
       }
     });
 
     ServerChannel.getInstance().start();
-
-    //request proxy for server listener
-    ServerChannel.getInstance().connectToProxy(new ChannelListenerMessage<>(ServerChannel.getInstance().getSelf(),
-        MessageType.Listener.REGISTER_SERVER, ServerChannel.getInstance().getServerName()), Duration.ofSeconds(3));
+    ServerChannel.getInstance().registerToNetwork(Duration.ofSeconds(3));
   }
 
   public static void stop() {
