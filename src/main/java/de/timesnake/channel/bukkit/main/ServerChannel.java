@@ -16,7 +16,7 @@ import de.timesnake.channel.util.message.VoidMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Set;
 
 public abstract class ServerChannel extends Channel implements ChannelListener {
 
@@ -35,7 +35,7 @@ public abstract class ServerChannel extends Channel implements ChannelListener {
     this.serverName = serverName;
     this.config = config;
 
-    this.addListener(this, List.of(serverName));
+    this.addListener(this, Set.of(serverName));
   }
 
   public void registerToNetwork(Duration retryPeriod) {
