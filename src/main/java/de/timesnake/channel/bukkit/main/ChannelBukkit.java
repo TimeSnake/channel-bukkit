@@ -6,6 +6,8 @@ package de.timesnake.channel.bukkit.main;
 
 import com.moandjiezana.toml.Toml;
 import de.timesnake.channel.util.ChannelConfig;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,6 +31,8 @@ public class ChannelBukkit extends JavaPlugin {
         }
       }
     });
+
+    Configurator.setAllLevels(ServerChannel.getInstance().getLogger().getName(), Level.WARN);
 
     ServerChannel.getInstance().start();
     ServerChannel.getInstance().registerToNetwork(Duration.ofSeconds(3));
