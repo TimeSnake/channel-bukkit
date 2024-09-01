@@ -1,9 +1,11 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+
 plugins {
   id 'java'
   id 'java-base'
   id 'java-library'
   id 'maven-publish'
-  id("io.papermc.paperweight.userdev") version "1.7.1"
+  id("io.papermc.paperweight.userdev") version "1.7.2"
   id("xyz.jpenilla.run-paper") version "2.1.0"
   id('com.github.johnrengelman.shadow') version "8.1.1"
 }
@@ -29,9 +31,9 @@ repositories {
 }
 
 dependencies {
-  implementation "de.timesnake:channel-api:4.+"
+  implementation "de.timesnake:channel-api:5.+"
 
-  compileOnly "de.timesnake:library-basic:1.+"
+  compileOnly "de.timesnake:library-basic:2.+"
 
   compileOnly 'org.jetbrains:annotations:23.0.0'
   compileOnly 'org.apache.logging.log4j:log4j-api:2.22.1'
@@ -48,12 +50,6 @@ configurations.configureEach {
       substitute module("de.timesnake:channel-api") using project(":channel-api")
       substitute module("de.timesnake:library-basic") using project(":library-basic")
     }
-  }
-}
-
-tasks {
-  compileJava {
-    options.release = 21
   }
 }
 
@@ -87,9 +83,18 @@ publishing {
   }
 }
 
-java {
-  withSourcesJar()
-  toolchain.languageVersion = JavaLanguageVersion.of(21)
+tasks {
+  compileJava {
+    options.encoding = "UTF-8"
+    options.release = 21
+  }
 }
 
-paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.getMOJANG_PRODUCTION()
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+  withSourcesJar()
+}
+
+paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.getMOJANG_PRODUCTION()
