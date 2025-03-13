@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "de.timesnake"
-version = "5.1.0"
+version = "6.0.0"
 var projectId = 42
 
 repositories {
@@ -27,38 +27,35 @@ repositories {
     }
 }
 
+val pluginImplementation: Configuration by configurations.creating
+val pluginFile = layout.buildDirectory.file("libs/${project.name}-${project.version}-plugin.jar")
+val pluginArtifact = artifacts.add("pluginImplementation", pluginFile.get().asFile) {
+    builtBy("pluginJar")
+}
+
 dependencies {
-    implementation("de.timesnake:channel-api:5.+")
+    pluginImplementation("de.timesnake:channel-api:6.+") {
+        isTransitive = false
+    }
 
-    compileOnly("de.timesnake:library-basic:2.+")
+    api("de.timesnake:channel-api:6.+")
 
-    compileOnly("org.jetbrains:annotations:23.0.0")
-    compileOnly("org.apache.logging.log4j:log4j-api:2.22.1")
-    compileOnly("org.apache.logging.log4j:log4j-core:2.22.1")
-
-    compileOnly("com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT")
+    implementation("com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT")
 
     paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
 }
 
-configurations.configureEach {
-    resolutionStrategy.dependencySubstitution {
-        if (project.parent != null) {
-            substitute(module("de.timesnake:channel-api")).using(project(":channel:channel-api"))
-            substitute(module("de.timesnake:library-basic")).using(project(":libraries:library-basic"))
+configurations.all {
+    resolutionStrategy.dependencySubstitution.all {
+        requested.let {
+            if (it is ModuleComponentSelector && it.group == "de.timesnake") {
+                val targetProject = findProject(":${it.module}")
+                if (targetProject != null) {
+                    useTarget(targetProject)
+                }
+            }
         }
     }
-}
-
-tasks.register<Copy>("exportAsPlugin") {
-    from(layout.buildDirectory.file("libs/${project.name}-${project.version}-all.jar"))
-    into(findProperty("timesnakePluginDir") ?: "")
-
-    dependsOn("shadowJar")
-}
-
-tasks.withType<PublishToMavenRepository> {
-    dependsOn("shadowJar")
 }
 
 publishing {
@@ -74,7 +71,28 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["java"])
         }
+        create<MavenPublication>("plugin") {
+            artifact(pluginArtifact)
+        }
     }
+}
+
+tasks.register<Jar>("pluginJar") {
+    from(pluginImplementation.map { if (it.isDirectory) it else zipTree(it) })
+    with(tasks.jar.get() as CopySpec)
+    archiveClassifier = "plugin"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn("shadowJar", "assemble")
+}
+
+tasks.register<Copy>("exportPluginJar") {
+    from(pluginFile)
+    into(findProperty("timesnakePluginDir") ?: "")
+    dependsOn("pluginJar")
+}
+
+tasks.withType<PublishToMavenRepository> {
+    dependsOn("shadowJar", "pluginJar")
 }
 
 tasks {
