@@ -69,10 +69,10 @@ publishing {
 
     publications {
         create<MavenPublication>("maven") {
-            from(components["java"])
-        }
-        create<MavenPublication>("plugin") {
-            artifact(pluginArtifact)
+            artifacts {
+                from(components["java"])
+                artifact(pluginArtifact)
+            }
         }
     }
 }
